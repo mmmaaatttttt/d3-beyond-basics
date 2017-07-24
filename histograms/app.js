@@ -1,6 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-  d3.csv('../data/Restaurant_Scores_-_LIVES_Standard.csv', function(d, i, x, y) {
+  var width = 800;
+  var height = 450;
+  var svg = d3.select('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+  d3.csv('../data/Restaurant_Scores_-_LIVES_Standard.csv', function(d) {
+    if (d.inspection_score === "") return;
+
     return {
       id: d.business_id,
       address: d.business_address,
@@ -32,8 +40,33 @@ document.addEventListener('DOMContentLoaded', function() {
       return acc;
     }, []);
 
-    // d3.histogram
-    debugger;
+    var bins = d3.histogram()(data.map(function(d) {
+      return d.inspection.score;
+    }));
+
+    var barPadding = 10;
+    var barWidth = width / bins.length - barPadding;
+    var yScale = d3.scaleLinear()
+                   .domain([0, d3.max(bins, function(d) {
+                     return d.length;
+                   })])
+                   .range([height, 0]);
+
+    svg
+      .selectAll('rect')
+      .data(bins)
+      .enter()
+      .append('rect')
+        .attr('width', barWidth)
+        .attr('x', function(d, i) {
+          return (barWidth + barPadding ) * i
+        })
+        .attr('y', function(d) { return yScale(d.length); })
+        .attr('height', function(d) { return height - yScale(d.length); })
+
+
+    // 1. axes / labels 
+    // 2. bins by month
     
   });
 
