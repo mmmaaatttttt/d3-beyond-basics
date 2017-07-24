@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
       lat: d.business_latitude,
       long: d.business_longitude,
       zip: d.business_postal_code,
+      name: d.business_name,
       inspection: {
         id: d.inspection_id,
         date: new Date(d.inspection_date),
@@ -47,9 +48,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var bins = d3.histogram()
                   .domain(xScale.domain())
-                  (data.map(function(d) {
-                    return d.inspection.score;
-                  }));
+                  .value(function(d) { return d.inspection.score - 1})
+                  // .thresholds(xScale.ticks(20).map(function(tick) { return tick + 1}))
+                  (data);
 
     var yScale = d3.scaleLinear()
                    .domain([0, d3.max(bins, function(d) {
@@ -59,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // based on https://www.sfdph.org/dph/EH/Food/Score/
     var colorScale = d3.scaleThreshold()
-                       .domain([70, 85, 90, 100])
+                       .domain([71, 86, 91, 100])
                        .range(['#e61400', '#ffc107', '#cddc39', '#4caf50'])
 
     var bars = svg.selectAll('.bar')
@@ -78,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .attr('y', function(d) { return yScale(d.length); })
         .attr('height', function(d) { return height - padding - yScale(d.length); })
         .attr('fill', function(d) {
-          return colorScale(d.x0);
+          return colorScale(d.x1);
         });
 
     bars.append('text')
