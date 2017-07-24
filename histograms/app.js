@@ -61,10 +61,13 @@ document.addEventListener('DOMContentLoaded', function() {
                        .domain([80, 90, 100])
                        .range(['#e61400', '#ffeb3b', '#4caf50'])
 
-    svg.selectAll('rect')
+    var bars = svg.selectAll('.bar')
       .data(bins)
       .enter()
-      .append('rect')
+      .append('g')
+        .classed('bar', true);
+
+    bars.append('rect')
         .attr('width', function(d) {
           return xScale(d.x1) - xScale(d.x0) - 1;
         })
@@ -77,6 +80,17 @@ document.addEventListener('DOMContentLoaded', function() {
           return colorScale(d.x0);
         });
 
+    bars.append('text')
+        .attr('x', function(d) {
+          return (xScale(d.x1) + xScale(d.x0)) / 2;
+        })
+        .attr('y', function(d) {
+          return yScale(d.length) - 2;
+        })
+        .text(function(d) {
+          return d.length ? d3.format(',.0f')(d.length) : "";
+        })
+
     svg.append('g')
         .attr('class', 'x-axis')
         .attr('transform', 'translate(0, ' + (height - padding) + ')')
@@ -84,7 +98,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     svg.append('text')
        .attr('class', 'title')
-       .attr('transform', 'translate(' + width / 2 + ', 30)' )
+       .attr('x', width / 2 )
+       .attr('y', 30)
        .text('SF Restaurant Health Inspection Scores')
 
   });
