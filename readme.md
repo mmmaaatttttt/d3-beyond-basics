@@ -20,3 +20,5 @@ range vs. rangeRound (consistent bar widths)
 ### Pie Charts
 
 svg path elements + arcs
+
+tooltips

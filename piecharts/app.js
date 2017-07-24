@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var svg = d3.select('svg')
                 .attr('width', width)
                 .attr('height', height);
-  var padding = 20;
+  var tooltip = d3.select('.tooltip')
 
   d3.csv('../data/Restaurant_Scores_-_LIVES_Standard.csv', function(d) {
     if (d.inspection_score === "") return;
@@ -93,6 +93,16 @@ document.addEventListener('DOMContentLoaded', function() {
         .attr('d', path)
         .attr('fill', d => colorScale(d.data.rating))
         .attr('stroke', '#fff')
+        .on('mousemove', function(d) {
+          var formattedKey = d.data.rating[0].toUpperCase() + d.data.rating.slice(1).replace(/[A-Z]/g, c => ` ${c}`);
+          tooltip
+              .text(`${formattedKey} - ${d3.format(",.0f")(d.data.count)} inspections`);
+          updateTooltipLocation();
+        })
+        .on('mouseout', function(d) {
+          tooltip
+              .style('opacity', 0)
+        });
 
     // CHART 2: violations chart
     var violationSummary = data
@@ -143,6 +153,8 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       (violationArr);
 
+    var totalViolations = riskArr.reduce((acc, next) => acc + next.count, 0);
+
     var path2 = d3.arc()
                   .outerRadius(width / 5)
                   .innerRadius(0)
@@ -161,7 +173,27 @@ document.addEventListener('DOMContentLoaded', function() {
         .attr('d', path2)
         .attr('fill', d => colorScale2(d.data.riskCategory))
         .attr('stroke', '#fff')
+        .on('mousemove', function(d) { 
+          tooltip.html(`
+            <h4>${d.data.riskCategory}</h4>
+            <p>${d.data.description}</p>
+            <p>Number of violations: ${d3.format(",.0f")(d.data.count)}</p>
+            <p>Percentage of violations: ${d3.format(".2%")(d.data.count / totalViolations)}</p>
+          `);
+          updateTooltipLocation();
+        })
+        .on('mouseout', function() {
+          tooltip.style('opacity', 0);
+        })
 
   });
+
+  function updateTooltipLocation() {
+    var w = tooltip.node().getBoundingClientRect().width;
+    tooltip
+        .style('opacity', 1)
+        .style('left', d3.event.pageX - w / 2 + 'px')
+        .style('top', d3.event.pageY + 10 + 'px')
+  }
 
 });

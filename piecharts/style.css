@@ -2,3 +2,24 @@ svg {
   display: block;
   margin: 0 auto;
 }
+
+.tooltip {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+  border: 2px solid #333;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: #00bcd4;
+  box-shadow: white 1px 1px 5px 1px;
+}
+
+.tooltip h4 {
+  text-align: center;
+  margin: 0;
+}
+
+.tooltip p {
+  margin: 5px;
+}
