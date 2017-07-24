@@ -9,8 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   d3.csv('../data/Restaurant_Scores_-_LIVES_Standard.csv', function(d) {
     if (d.inspection_score === "") return;
-
-    return {
+    var newObj = {
       id: d.business_id,
       address: d.business_address,
       lat: d.business_latitude,
@@ -22,13 +21,17 @@ document.addEventListener('DOMContentLoaded', function() {
         date: new Date(d.inspection_date),
         score: +d.inspection_score,
         type: d.inspection_type,
-        violations: [{
-          id: d.violation_id,
-          description: d.violation_description,
-          riskCategory: d.risk_category
-        }]
+        violations: []
       }
     }
+    if (d.violation_id) {
+      newObj.inspection.violations.push({
+        id: d.violation_id,
+        description: d.violation_description,
+        riskCategory: d.risk_category
+      })
+    }
+    return newObj;
   }, function(data) {
 
     // group inspections together
@@ -48,14 +51,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var bins = d3.histogram()
                   .domain(xScale.domain())
-                  .value(function(d) { return d.inspection.score - 1})
-                  // .thresholds(xScale.ticks(20).map(function(tick) { return tick + 1}))
+                  .value(d => d.inspection.score - 1)
                   (data);
 
     var yScale = d3.scaleLinear()
-                   .domain([0, d3.max(bins, function(d) {
-                     return d.length;
-                   })])
+                   .domain([0, d3.max(bins, d => d.length)])
                    .range([height - padding, padding]);
 
     // based on https://www.sfdph.org/dph/EH/Food/Score/
@@ -70,32 +70,20 @@ document.addEventListener('DOMContentLoaded', function() {
         .classed('bar', true);
 
     bars.append('rect')
-        .attr('width', function(d) {
-          return xScale(d.x1) - xScale(d.x0) - 1;
-        })
-        .attr('x', function(d, i) {
-          return xScale(d.x0);
-        })
-        .attr('y', function(d) { return yScale(d.length); })
-        .attr('height', function(d) { return height - padding - yScale(d.length); })
-        .attr('fill', function(d) {
-          return colorScale(d.x1);
-        });
+        .attr('width', d => xScale(d.x1) - xScale(d.x0) - 1)
+        .attr('x', (d, i) => xScale(d.x0))
+        .attr('y', d => yScale(d.length))
+        .attr('height', d => height - padding - yScale(d.length))
+        .attr('fill', d => colorScale(d.x1));
 
     bars.append('text')
-        .attr('x', function(d) {
-          return (xScale(d.x1) + xScale(d.x0)) / 2;
-        })
-        .attr('y', function(d) {
-          return yScale(d.length) - 2;
-        })
-        .text(function(d) {
-          return d.length ? d3.format(',.0f')(d.length) : "";
-        })
+        .attr('x', d => (xScale(d.x1) + xScale(d.x0)) / 2 )
+        .attr('y', d => yScale(d.length) - 2 )
+        .text(d => d.length ? d3.format(',.0f')(d.length) : "")
 
     svg.append('g')
         .attr('class', 'x-axis')
-        .attr('transform', 'translate(0, ' + (height - padding) + ')')
+        .attr('transform', `translate(0, ${height - padding})`)
         .call(d3.axisBottom(xScale).ticks(20))
 
     svg.append('text')
