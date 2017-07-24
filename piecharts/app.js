@@ -44,7 +44,48 @@ document.addEventListener('DOMContentLoaded', function() {
       return acc;
     }, []);
 
-    console.log(data)
+    var ratingSummary = data.reduce(function(acc, next) {
+      var key;
+      var score = next.inspection.score
+      switch (true) {
+        case (score > 90):
+          key = 'good';
+          break;
+        case (score > 85):
+          key = 'adequate';
+          break;
+        case (score > 70):
+          key = 'needsImprovement';
+          break;
+        default:
+          key = 'poor'
+          break;
+      }
+      acc[key]++;
+      return acc
+    }, {
+      poor: 0,
+      needsImprovement: 0,
+      adequate: 0,
+      good: 0
+    })
+
+    var violationSummary = data.reduce(function(acc, next) {
+      next.inspection.violations.forEach(function(v) {
+        var id = v.id.split("_")[2];
+        if (id && acc[id]) acc[id].count++;
+        if (id && !acc[id]) {
+          acc[id] = {
+            id: id,
+            description: v.description,
+            riskCategory: v.riskCategory,
+            count: 1
+          }
+        }
+      })
+      return acc;
+    }, {});
+
     debugger;
   });
 
