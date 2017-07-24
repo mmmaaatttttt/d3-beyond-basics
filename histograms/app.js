@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var svg = d3.select('svg')
                 .attr('width', width)
                 .attr('height', height);
+  var padding = 20;
 
   d3.csv('../data/Restaurant_Scores_-_LIVES_Standard.csv', function(d) {
     if (d.inspection_score === "") return;
@@ -40,34 +41,52 @@ document.addEventListener('DOMContentLoaded', function() {
       return acc;
     }, []);
 
-    var bins = d3.histogram()(data.map(function(d) {
-      return d.inspection.score;
-    }));
+    var xScale = d3.scaleLinear()
+                   .domain([0, 100])
+                   .rangeRound([padding, width - padding]);
 
-    var barPadding = 10;
-    var barWidth = width / bins.length - barPadding;
+    var bins = d3.histogram()
+                  .domain(xScale.domain())
+                  (data.map(function(d) {
+                    return d.inspection.score;
+                  }));
+
     var yScale = d3.scaleLinear()
                    .domain([0, d3.max(bins, function(d) {
                      return d.length;
                    })])
-                   .range([height, 0]);
+                   .range([height - padding, padding]);
 
-    svg
-      .selectAll('rect')
+    var colorScale = d3.scaleThreshold()
+                       .domain([80, 90, 100])
+                       .range(['#e61400', '#ffeb3b', '#4caf50'])
+
+    svg.selectAll('rect')
       .data(bins)
       .enter()
       .append('rect')
-        .attr('width', barWidth)
+        .attr('width', function(d) {
+          return xScale(d.x1) - xScale(d.x0) - 1;
+        })
         .attr('x', function(d, i) {
-          return (barWidth + barPadding ) * i
+          return xScale(d.x0);
         })
         .attr('y', function(d) { return yScale(d.length); })
-        .attr('height', function(d) { return height - yScale(d.length); })
+        .attr('height', function(d) { return height - padding - yScale(d.length); })
+        .attr('fill', function(d) {
+          return colorScale(d.x0);
+        });
 
+    svg.append('g')
+        .attr('class', 'x-axis')
+        .attr('transform', 'translate(0, ' + (height - padding) + ')')
+        .call(d3.axisBottom(xScale).ticks(20))
 
-    // 1. axes / labels 
-    // 2. bins by month
-    
+    svg.append('text')
+       .attr('class', 'title')
+       .attr('transform', 'translate(' + width / 2 + ', 30)' )
+       .text('SF Restaurant Health Inspection Scores')
+
   });
 
 });

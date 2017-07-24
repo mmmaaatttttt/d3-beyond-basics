@@ -14,4 +14,7 @@
 
 `d3.histogram`
 
+x-axis, x scale
+range vs. rangeRound (consistent bar widths)
+
 ### Pie Charts

@@ -2,3 +2,8 @@ svg {
   display: block;
   margin: 0 auto;
 }
+
+.title {
+  text-anchor: middle;
+  font-size: 2em;
+}
