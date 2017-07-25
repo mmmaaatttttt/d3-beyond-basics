@@ -93,9 +93,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // GENERATE FORCE GRAPH
 
     var simulation = d3.forceSimulation()
-      .force("link", d3.forceLink().id(d => d.description))
+      .nodes(nodes)
+      .force("link", d3.forceLink(links).id(d => d.description))
       .force("charge", d3.forceManyBody().strength(-300))
       .force("center", d3.forceCenter(width / 2, height / 2))
+      .on('tick', ticked)
       // .force("circle", d3.forceCollide(20).strength(0.2).iterations(10))
 
     var link = svg.append("g")
@@ -105,13 +107,11 @@ document.addEventListener('DOMContentLoaded', function() {
       .enter().append("line")
         .attr("stroke", "#ccc")
         .attr("stroke-width", d => d.weight / 5);
-        // .attr("stroke-width", 1);
 
     var node = svg.append("g")
       .selectAll("circle")
       .data(nodes)
       .enter().append("circle")
-        // .attr("r", 5 )
         .attr("r", d => radiusScale(d.count) )
         .attr('fill', d => colorScale(d.riskCategory))
         .attr('stroke', "#607d8b")
@@ -136,23 +136,17 @@ document.addEventListener('DOMContentLoaded', function() {
             .on("drag", dragged)
             .on("end", dragended));
 
-    simulation
-      .nodes(nodes)
-      .on("tick", ticked);
-
-    simulation.force("link")
-      .links(links);
 
     function ticked() {
       link
-          .attr("x1", function(d) { return d.source.x; })
-          .attr("y1", function(d) { return d.source.y; })
-          .attr("x2", function(d) { return d.target.x; })
-          .attr("y2", function(d) { return d.target.y; });
+          .attr("x1", d => d.source.x )
+          .attr("y1", d => d.source.y )
+          .attr("x2", d => d.target.x )
+          .attr("y2", d => d.target.y );
 
       node
-          .attr("cx", function(d) { return d.x; })
-          .attr("cy", function(d) { return d.y; });
+          .attr("cx", d => d.x )
+          .attr("cy", d => d.y );
     }
 
     function dragstarted(d) {

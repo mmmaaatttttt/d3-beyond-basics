@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // based on https://www.sfdph.org/dph/EH/Food/Score/
     var colorScale = d3.scaleThreshold()
                        .domain([71, 86, 91, 100])
-                       .range(['#e61400', '#ffc107', '#cddc39', '#4caf50'])
+                       .range(['#e61400', '#ffc107', '#cddc39', '#4caf50']);
 
     var bars = svg.selectAll('.bar')
       .data(bins)
