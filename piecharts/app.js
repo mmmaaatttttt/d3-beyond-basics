@@ -34,15 +34,14 @@ document.addEventListener('DOMContentLoaded', function() {
     return newObj;
   }, function(data) { 
 
-    data = data.reduce(function(acc, next, i) {
-      var last = acc[acc.length - 1];
-      if (last && next.inspection.id === last.inspection.id) {
-        last.inspection.violations.push(next.inspection.violations[0])
-      } else {
-        acc.push(next);
-      }
+    var idObj = data.reduce(function(acc, next) {
+      var id = next.inspection.id;
+      if (acc[id]) acc[id].inspection.violations.push(next.inspection.violations[0]);
+      else acc[id] = next;
       return acc;
-    }, []);
+    }, {});
+
+    data = Object.values(idObj);
 
     // CHART 1: rating pie chart
     var ratings = [{

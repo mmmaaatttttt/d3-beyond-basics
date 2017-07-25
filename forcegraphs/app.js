@@ -34,18 +34,17 @@ document.addEventListener('DOMContentLoaded', function() {
     return newObj;
   }, function(data) { 
 
-    data = data.reduce(function(acc, next, i) {
-      var last = acc[acc.length - 1];
-      if (last && next.inspection.id === last.inspection.id) {
-        last.inspection.violations.push(next.inspection.violations[0])
-      } else {
-        acc.push(next);
-      }
+    var idObj = data.reduce(function(acc, next) {
+      var id = next.inspection.id;
+      if (acc[id]) acc[id].inspection.violations.push(next.inspection.violations[0]);
+      else acc[id] = next;
       return acc;
-    }, [])
+    }, {});
+
+    data = Object.values(idObj);
 
     var multipleViolations = data.filter(d => d.inspection.violations.length > 1);
-  
+
     var nodes = multipleViolations.reduce(function(acc, next) {
       next.inspection.violations.forEach(function(violation) {
         if (!acc.find(v => v.description === violation.description)) {
@@ -89,6 +88,9 @@ document.addEventListener('DOMContentLoaded', function() {
     var radiusScale = d3.scaleLinear()
                         .domain(d3.extent(nodes, n => n.count))
                         .range([5, 30])
+    var weightScale = d3.scaleLinear()
+                        .domain(d3.extent(links, l => l.weight))
+                        .range([1, 15]);
 
     // GENERATE FORCE GRAPH
 
@@ -106,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
       .data(links)
       .enter().append("line")
         .attr("stroke", "#ccc")
-        .attr("stroke-width", d => d.weight / 5);
+        .attr("stroke-width", d => weightScale(d.weight));
 
     var node = svg.append("g")
       .selectAll("circle")
@@ -136,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .on("drag", dragged)
             .on("end", dragended));
 
-
+        debugger
     function ticked() {
       link
           .attr("x1", d => d.source.x )

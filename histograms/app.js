@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var padding = 20;
 
   d3.csv('../data/Restaurant_Scores_-_LIVES_Standard.csv', function(d) {
-    // if (d.inspection_score === "") return;
+    if (d.inspection_score === "") return;
     var newObj = {
       id: d.business_id,
       address: d.business_address,
@@ -43,8 +43,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, {});
 
     data = Object.values(idObj);
-
-    debugger 
 
     var xScale = d3.scaleLinear()
                    .domain([0, 100])
