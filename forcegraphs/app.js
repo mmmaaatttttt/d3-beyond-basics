@@ -3,8 +3,8 @@
 
 document.addEventListener('DOMContentLoaded', function() {
 
-  var width = 800;
-  var height = 450;
+  var width = 600;
+  var height = 600;
   var svg = d3.select('svg')
                 .attr('width', width)
                 .attr('height', height);
@@ -89,13 +89,17 @@ document.addEventListener('DOMContentLoaded', function() {
     var colorScale = d3.scaleOrdinal()
                         .domain(risks.sort())
                         .range(['#000000', '#ffa000', '#ff0000']);
+    var radiusScale = d3.scaleLinear()
+                        .domain(d3.extent(nodes, n => n.count))
+                        .range([5, 30])
 
     // GENERATE FORCE GRAPH
 
     var simulation = d3.forceSimulation()
-      .force("link", d3.forceLink().id(function(d) { return d.description; }))
-      .force("charge", d3.forceManyBody())
-      .force("center", d3.forceCenter(width / 2, height / 2));
+      .force("link", d3.forceLink().id(d => d.description))
+      .force("charge", d3.forceManyBody().strength(-300))
+      .force("center", d3.forceCenter(width / 2, height / 2))
+      // .force("circle", d3.forceCollide(20).strength(0.2).iterations(10))
 
     var link = svg.append("g")
         .attr("class", "links")
@@ -111,8 +115,25 @@ document.addEventListener('DOMContentLoaded', function() {
       .data(nodes)
       .enter().append("circle")
         // .attr("r", 5 )
-        .attr("r", d => d.count / 50 )
+        .attr("r", d => radiusScale(d.count) )
         .attr('fill', d => colorScale(d.riskCategory))
+        .attr('stroke', "#607d8b")
+        .attr('stroke-weight', 3)
+        .on('mousemove', function(d) { 
+          tooltip.html(`
+            <h4>${d.riskCategory}</h4>
+            <p>${d.description}</p>
+            <p>Number of violations: ${d3.format(",.0f")(d.count)}</p>
+          `);
+          var w = tooltip.node().getBoundingClientRect().width;
+          tooltip
+              .style('opacity', 1)
+              .style('left', d3.event.pageX - w / 2 + 'px')
+              .style('top', d3.event.pageY + 10 + 'px')
+        })
+        .on('mouseout', function() {
+          tooltip.style('opacity', 0);
+        })
         .call(d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
