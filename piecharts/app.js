@@ -1,6 +1,3 @@
-// types of violations
-// fractions of restaurants
-
 document.addEventListener('DOMContentLoaded', function() {
 
   var width = 800;
