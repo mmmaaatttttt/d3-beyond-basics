@@ -23,3 +23,19 @@ svg {
 .tooltip p {
   margin: 5px;
 }
+
+.select {
+  text-align: center;
+}
+
+svg text {
+  text-anchor: middle;
+}
+
+.title {
+  font-size: 2em;
+}
+
+.bar text {
+  font-size: 0.75em;
+}
