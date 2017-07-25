@@ -1,6 +1,3 @@
-// types of violations
-// fractions of restaurants
-
 document.addEventListener('DOMContentLoaded', function() {
 
   var width = 600;
@@ -8,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var svg = d3.select('svg')
                 .attr('width', width)
                 .attr('height', height);
-  var tooltip = d3.select('.tooltip')
+  var tooltip = d3.select('.tooltip');
 
   d3.csv('../data/Restaurant_Scores_-_LIVES_Standard.csv', function(d) {
     if (d.inspection_score === "") return;

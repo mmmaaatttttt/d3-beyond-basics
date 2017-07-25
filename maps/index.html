@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>D3 Pie Charts</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <svg></svg>
+  <div class="tooltip"></div>
+  <div class="select">
+    <h4>Highlight regions based on:</h4>
+    <select>
+      <option value="meanScore">Mean Inspection Score</option>
+      <option value="medianScore">Median Inspection Score</option>
+      <option value="High Risk">Violations - High Risk</option>
+      <option value="Moderate Risk">Violations - Moderate Risk</option>
+      <option value="Low Risk">Violations - Low Risk</option>
+      <option value="total">Violations - Total</option>
+    </select>
+  </div>
+  <script src="https://d3js.org/d3.v4.js"></script>
+  <script src="https://unpkg.com/topojson@3"></script>
+  <script src="app.js"></script>
+</body>
+</html>
