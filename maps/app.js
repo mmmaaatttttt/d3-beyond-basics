@@ -82,18 +82,40 @@ document.addEventListener('DOMContentLoaded', function() {
           .attr("class", 'region')
           .attr("d", path)
           .attr('stroke', 'black')
-          .attr('stroke-weight', '2px');
+          .attr('stroke-weight', '2px')
+          .on('mousemove', function(d) { 
+            tooltip.html(`
+              <h4>Zip Code: ${d.properties.zip}</h4>
+              <p>Average Inspection Score: ${d3.format(",.2f")(d.properties.meanScore)}</p>
+              <h5>Violation Counts:</h5>
+              <ul>
+                <li>High Risk: ${d3.format(",.0f")(d.properties.riskCounts["High Risk"])}
+                <li>Moderate Risk: ${d3.format(",.0f")(d.properties.riskCounts["Moderate Risk"])}
+                <li>Low Risk: ${d3.format(",.0f")(d.properties.riskCounts["Low Risk"])}
+                <li>Total: ${d3.format(",.0f")(d.properties.riskCounts.total)}
+              </ul>
+            `);
+            var w = tooltip.node().getBoundingClientRect().width;
+            tooltip
+                .style('opacity', 1)
+                .style('left', d3.event.pageX - w / 2 + 'px')
+                .style('top', d3.event.pageY + 10 + 'px')
+          })
+          .on('mouseout', function() {
+            tooltip.style('opacity', 0);
+          })
 
       updateFills();
 
       select.on('change', updateFills);
 
-      debugger;
-
       function updateFills() {
         var scale = d3.scaleLinear();
         var val = select.property('value');
-        regions.transition().attr('fill', d => {
+        regions.transition()
+          .duration(1500)
+          .ease(d3.easeLinear)
+          .attr('fill', d => {
           if (d.properties[val]) {
             scale.domain([0, 50, 70, 85, 90, 100])
                  .range(['#000', '#e61400', '#ffc107', '#cddc39', '#4caf50', '#00ff00']);
